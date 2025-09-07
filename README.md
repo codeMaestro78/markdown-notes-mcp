@@ -30,6 +30,48 @@ A **production-ready semantic search system** for Markdown notes with advanced M
 - **📈 Performance Monitoring**: Detailed metrics and health checks
 - **🐳 Container Ready**: Docker deployment with multi-stage builds
 
+## 🤖 GitHub Copilot Integration
+
+Your MCP server is **pre-configured** for seamless GitHub Copilot integration! Copilot can now search and retrieve information from your Markdown notes.
+
+### 🚀 Quick Start with Copilot
+
+1. **MCP Configuration**: Already set up in `.copilot/mcp.json`
+2. **VS Code Settings**: Configured in `.vscode/settings.json`
+3. **Environment Variables**: Pre-configured for development
+
+### 💬 Copilot Chat Commands
+
+You can now ask Copilot to:
+
+```
+"Search my notes for machine learning algorithms"
+"Show me the content of pca_notes.md"
+"Find information about web development in my notes"
+"List all my available notes"
+```
+
+### 🧪 Test Your Setup
+
+Run the health check to verify everything is working:
+
+```bash
+# Quick health check
+echo '{"jsonrpc": "2.0", "id": 1, "method": "health_check"}' | python notes_mcp_server.py
+
+# Test search functionality
+echo '{"jsonrpc": "2.0", "id": 2, "method": "search_notes", "params": {"query": "machine learning"}}' | python notes_mcp_server.py
+```
+
+### 📚 Available MCP Methods
+
+- **`list_notes`** - Get all available note files
+- **`get_note_content`** - Retrieve specific note content
+- **`search_notes`** - Semantic search with hybrid scoring
+- **`health_check`** - Verify server status
+
+See [`MCP_COPILOT_SETUP.md`](MCP_COPILOT_SETUP.md) for detailed setup instructions.
+
 ## Project Structure
 
 ```

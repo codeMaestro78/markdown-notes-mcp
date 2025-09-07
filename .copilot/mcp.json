@@ -11,7 +11,13 @@
       ],
       "cwd": "C:/Users/Devarshi/PycharmProjects/markdown-notes-mcp",
       "env": {
-        "PYTHONPATH": "C:/Users/Devarshi/PycharmProjects/markdown-notes-mcp"
+        "PYTHONPATH": "C:/Users/Devarshi/PycharmProjects/markdown-notes-mcp",
+        "MCP_ENVIRONMENT": "development",
+        "MCP_MODEL_NAME": "all-MiniLM-L6-v2",
+        "MCP_NOTES_ROOT": "./notes",
+        "MCP_INDEX_FILE": "notes_index.npz",
+        "MCP_META_FILE": "notes_meta.json",
+        "MCP_CONFIG_DIR": "./config"
       }
     }
   }
