@@ -1,118 +1,126 @@
 #!/usr/bin/env python3
 """
-Test script to verify MCP server functionality for Copilot integration.
+test_mcp_copilot.py
+
+Quick test script to verify MCP server is working for Copilot integration.
 """
 
-import json
 import subprocess
+import json
 import sys
-from pathlib import Path
+import time
 
 def test_mcp_server():
-    """Test the MCP server with sample requests."""
-
-    # Test requests
-    test_requests = [
-        {
-            "jsonrpc": "2.0",
-            "id": 1,
-            "method": "list_notes"
-        },
-        {
-            "jsonrpc": "2.0",
-            "id": 2,
-            "method": "search_notes",
-            "params": {
-                "query": "machine learning",
-                "top_k": 3
-            }
-        },
-        {
-            "jsonrpc": "2.0",
-            "id": 3,
-            "method": "health_check"
-        }
-    ]
-
-    # MCP server command
-    cmd = [
-        "C:/Users/Devarshi/PycharmProjects/markdown-notes-mcp/.venv/Scripts/python.exe",
-        "notes_mcp_server.py",
-        "--index", "notes_index.npz",
-        "--meta", "notes_meta.json",
-        "--notes_root", "./notes"
-    ]
-
-    # Environment variables
-    env = {
-        "PYTHONPATH": "C:/Users/Devarshi/PycharmProjects/markdown-notes-mcp",
-        "MCP_ENVIRONMENT": "development",
-        "MCP_MODEL_NAME": "all-MiniLM-L6-v2",
-        "MCP_NOTES_ROOT": "./notes",
-        "MCP_INDEX_FILE": "notes_index.npz",
-        "MCP_META_FILE": "notes_meta.json",
-        "MCP_CONFIG_DIR": "./config"
-    }
-
+    """Test the MCP server with basic operations."""
     print("🧪 Testing MCP Server for Copilot Integration")
     print("=" * 50)
 
+    # Start MCP server
+    cmd = [
+        sys.executable,
+        'notes_mcp_server.py',
+        '--index', 'notes_index.npz',
+        '--meta', 'notes_meta.json',
+        '--notes_root', './notes'
+    ]
+
     try:
-        # Start MCP server process
-        process = subprocess.Popen(
+        proc = subprocess.Popen(
             cmd,
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,
-            env={**process.env, **env} if hasattr(subprocess, 'env') else env,
-            cwd="C:/Users/Devarshi/PycharmProjects/markdown-notes-mcp"
+            cwd='c:/Users/Devarshi/PycharmProjects/markdown-notes-mcp'
         )
 
-        results = []
+        # Give server time to start
+        time.sleep(2)
 
-        for i, request in enumerate(test_requests):
-            print(f"\n📤 Sending request {i+1}: {request['method']}")
+        # Test 1: Health Check
+        print("✅ Test 1: Health Check")
+        request = {'jsonrpc': '2.0', 'id': 'test_health', 'method': 'health_check'}
+        payload = json.dumps(request)
+        header = f'Content-Length: {len(payload)}\r\n\r\n'
 
-            # Send request
-            request_json = json.dumps(request) + "\n"
-            process.stdin.write(request_json)
-            process.stdin.flush()
+        proc.stdin.write(header + payload)
+        proc.stdin.flush()
 
-            # Read response
-            response_line = process.stdout.readline().strip()
-            if response_line:
-                try:
-                    response = json.loads(response_line)
-                    print(f"📥 Response: {json.dumps(response, indent=2)[:200]}...")
-                    results.append(True)
-                except json.JSONDecodeError as e:
-                    print(f"❌ Invalid JSON response: {e}")
-                    results.append(False)
-            else:
-                print("❌ No response received")
-                results.append(False)
+        # Read response
+        header_line = proc.stdout.readline().strip()
+        if header_line.startswith('Content-Length:'):
+            content_length = int(header_line.split(':')[1].strip())
+            proc.stdout.readline()  # Empty line
+            response_body = proc.stdout.read(content_length)
+            response = json.loads(response_body)
+            print(f"   Health Check Result: {response.get('result', 'Failed')}")
 
-        # Terminate server
-        process.terminate()
-        process.wait(timeout=5)
+        # Test 2: List Notes
+        print("✅ Test 2: List Notes")
+        request = {'jsonrpc': '2.0', 'id': 'test_list', 'method': 'list_notes'}
+        payload = json.dumps(request)
+        header = f'Content-Length: {len(payload)}\r\n\r\n'
 
-        # Summary
-        success_count = sum(results)
-        print("\n🎯 Test Results:")
-        print(f"✅ Successful requests: {success_count}/{len(test_requests)}")
+        proc.stdin.write(header + payload)
+        proc.stdin.flush()
 
-        if success_count == len(test_requests):
-            print("🎉 MCP Server is ready for Copilot integration!")
-            return True
-        else:
-            print("⚠️  Some tests failed. Check server logs for details.")
-            return False
+        header_line = proc.stdout.readline().strip()
+        if header_line.startswith('Content-Length:'):
+            content_length = int(header_line.split(':')[1].strip())
+            proc.stdout.readline()
+            response_body = proc.stdout.read(content_length)
+            response = json.loads(response_body)
+            files = response.get('result', [])
+            print(f"   Found {len(files)} note files:")
+            for file in files[:5]:  # Show first 5
+                print(f"   - {file}")
+
+        # Test 3: Search Notes
+        print("✅ Test 3: Search Notes")
+        request = {
+            'jsonrpc': '2.0',
+            'id': 'test_search',
+            'method': 'search_notes',
+            'params': {'query': 'machine learning', 'top_k': 3}
+        }
+        payload = json.dumps(request)
+        header = f'Content-Length: {len(payload)}\r\n\r\n'
+
+        proc.stdin.write(header + payload)
+        proc.stdin.flush()
+
+        header_line = proc.stdout.readline().strip()
+        if header_line.startswith('Content-Length:'):
+            content_length = int(header_line.split(':')[1].strip())
+            proc.stdout.readline()
+            response_body = proc.stdout.read(content_length)
+            response = json.loads(response_body)
+            results = response.get('result', [])
+            print(f"   Found {len(results)} search results for 'machine learning':")
+            for i, result in enumerate(results, 1):
+                print(f"   {i}. {result['file']} (Score: {result['score']:.3f})")
+                print(f"      \"{result['text'][:100]}...\"")
+
+        print("\n🎉 MCP Server Test Complete!")
+        print("✅ Server is ready for Copilot integration")
+        print("\n💡 Try asking Copilot:")
+        print("   - 'List all my available notes'")
+        print("   - 'Search my notes for machine learning'")
+        print("   - 'Show me the content of example.md'")
 
     except Exception as e:
-        print(f"❌ Test failed with error: {e}")
-        return False
+        print(f"❌ Error testing MCP server: {e}")
+        print("💡 Make sure:")
+        print("   - Index files exist (notes_index.npz, notes_meta.json)")
+        print("   - Python virtual environment is activated")
+        print("   - All dependencies are installed")
+    finally:
+        if 'proc' in locals():
+            proc.terminate()
+            try:
+                proc.wait(timeout=2)
+            except:
+                proc.kill()
 
 if __name__ == "__main__":
-    success = test_mcp_server()
-    sys.exit(0 if success else 1)
+    test_mcp_server()

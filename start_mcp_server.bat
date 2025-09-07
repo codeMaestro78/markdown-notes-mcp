@@ -1,36 +1,44 @@
 @echo off
-REM MCP Server Launcher for GitHub Copilot Integration
-REM This script starts the MCP server with proper environment variables
+REM start_mcp_server.bat - Quick launcher for MCP server
 
-echo 🚀 Starting MCP Server for GitHub Copilot...
+echo 🚀 Starting Markdown Notes MCP Server...
 echo.
 
-REM Set environment variables
-set MCP_ENVIRONMENT=development
-set MCP_MODEL_NAME=all-MiniLM-L6-v2
-set MCP_NOTES_ROOT=./notes
-set MCP_INDEX_FILE=notes_index.npz
-set MCP_META_FILE=notes_meta.json
-set MCP_CONFIG_DIR=./config
-set PYTHONPATH=%~dp0
+REM Check if virtual environment exists
+if not exist ".venv\Scripts\python.exe" (
+    echo ❌ Virtual environment not found!
+    echo Please run: python -m venv .venv
+    echo Then: .venv\Scripts\pip install -r requirements.txt
+    pause
+    exit /b 1
+)
 
-REM Change to the script directory
-cd /d "%~dp0"
+REM Check if index files exist
+if not exist "notes_index.npz" (
+    echo ⚠️  Index files not found. Building index...
+    call .venv\Scripts\python.exe build_index.py ./notes
+    if errorlevel 1 (
+        echo ❌ Failed to build index!
+        pause
+        exit /b 1
+    )
+)
 
 REM Start the MCP server
-echo Starting server with configuration:
-echo   Environment: %MCP_ENVIRONMENT%
-echo   Model: %MCP_MODEL_NAME%
-echo   Notes Root: %MCP_NOTES_ROOT%
-echo   Index File: %MCP_INDEX_FILE%
-echo   Meta File: %MCP_META_FILE%
+echo ✅ Starting MCP server...
+echo 📁 Notes root: ./notes
+echo 📊 Index file: notes_index.npz
+echo 📋 Meta file: notes_meta.json
+echo.
+echo 💡 The server is now running and ready for Copilot integration!
+echo 💡 Press Ctrl+C to stop the server
 echo.
 
-python notes_mcp_server.py ^
-    --index "%MCP_INDEX_FILE%" ^
-    --meta "%MCP_META_FILE%" ^
-    --notes_root "%MCP_NOTES_ROOT%"
+.venv\Scripts\python.exe notes_mcp_server.py ^
+    --index notes_index.npz ^
+    --meta notes_meta.json ^
+    --notes_root ./notes
 
 echo.
-echo MCP Server stopped.
+echo 👋 MCP server stopped.
 pause
