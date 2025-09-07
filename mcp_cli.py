@@ -715,7 +715,7 @@ Examples:
             notes.append({
                 'name': file_path.name,
                 'path': str(file_path),
-                'modified': datetime.fromtimestamp(stat.st_mtime).isoformat(),
+                'modified': datetime.fromtimestamp(stat.st_mtime),
                 'size': stat.st_size,
                 'size_kb': round(stat.st_size / 1024, 1)
             })
