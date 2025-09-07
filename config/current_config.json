@@ -1,0 +1,60 @@
+{
+  "environment": "production",
+  "model_name": "all-mpnet-base-v2",
+  "chunk_size": 200,
+  "overlap": 50,
+  "batch_size": 128,
+  "index_file": "notes_index.npz",
+  "meta_file": "notes_meta.json",
+  "notes_root": "notes",
+  "config_dir": "config",
+  "host": "0.0.0.0",
+  "port": 8181,
+  "max_file_size": 20971520,
+  "request_timeout": 30,
+  "models": {
+    "default": {
+      "provider": "sentence_transformers",
+      "model_name": "all-mpnet-base-v2",
+      "dimensions": 384,
+      "max_seq_length": 512
+    },
+    "high_quality": {
+      "provider": "sentence_transformers",
+      "model_name": "all-mpnet-base-v2",
+      "dimensions": 768,
+      "max_seq_length": 512
+    },
+    "fast": {
+      "provider": "sentence_transformers",
+      "model_name": "all-MiniLM-L6-v2",
+      "dimensions": 384,
+      "max_seq_length": 256
+    },
+    "multilingual": {
+      "provider": "sentence_transformers",
+      "model_name": "paraphrase-multilingual-MiniLM-L12-v2",
+      "dimensions": 384,
+      "max_seq_length": 512
+    }
+  },
+  "chunking_strategies": [
+    "fixed",
+    "sentence",
+    "heading",
+    "hybrid"
+  ],
+  "preprocessing": {
+    "enabled": true,
+    "language": "en"
+  },
+  "search": {
+    "default_top_k": 5,
+    "lexical_weight": 0.3
+  },
+  "performance": {
+    "use_faiss": true,
+    "max_workers": 4,
+    "enable_gpu": false
+  }
+}

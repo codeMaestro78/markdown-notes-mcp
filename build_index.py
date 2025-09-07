@@ -17,8 +17,8 @@ from typing import List, Tuple
 
 import numpy as np
 
-# Import configuration
-from config import config
+# Import advanced configuration system
+from config import AdvancedConfig
 
 try:
     import frontmatter
@@ -116,7 +116,7 @@ def save_index_npz(embeddings: np.ndarray, meta: List[dict], out_index: Path, ou
         raise RuntimeError(f"Save operation failed: {e}") from e
 
 
-def chunk_text(text: str, words_per_chunk=None, overlap=None) -> List[Tuple[int, str]]:
+def chunk_text(text: str, words_per_chunk=None, overlap=None, config_manager=None) -> List[Tuple[int, str]]:
     """
     Split text into overlapping chunks for better search granularity.
 
@@ -124,14 +124,18 @@ def chunk_text(text: str, words_per_chunk=None, overlap=None) -> List[Tuple[int,
         text: The text to chunk
         words_per_chunk: Number of words per chunk (uses config default if None)
         overlap: Number of overlapping words between chunks (uses config default if None)
+        config_manager: AdvancedConfig instance
 
     Returns:
         List of (chunk_id, chunk_text) tuples
     """
+    if config_manager is None:
+        config_manager = AdvancedConfig()
+
     if words_per_chunk is None:
-        words_per_chunk = config.chunk_size
+        words_per_chunk = config_manager.chunk_size
     if overlap is None:
-        overlap = config.overlap
+        overlap = config_manager.overlap
 
     words = text.split()
     chunks = []
@@ -153,16 +157,20 @@ def chunk_text(text: str, words_per_chunk=None, overlap=None) -> List[Tuple[int,
     return chunks
 
 
-def collect_chunks(notes_root: Path) -> Tuple[List[str], List[dict]]:
+def collect_chunks(notes_root: Path, config_manager=None) -> Tuple[List[str], List[dict]]:
     """
     Collect and process all Markdown files in the notes directory.
 
     Args:
         notes_root: Root directory containing Markdown files
+        config_manager: AdvancedConfig instance
 
     Returns:
         Tuple of (documents, metadata)
     """
+    if config_manager is None:
+        config_manager = AdvancedConfig()
+
     docs = []
     metas = []
     processed_files = 0
@@ -174,7 +182,7 @@ def collect_chunks(notes_root: Path) -> Tuple[List[str], List[dict]]:
         for p in sorted(notes_root.rglob("*.md")):
             try:
                 # Check file size
-                if p.stat().st_size > config.max_file_size:
+                if p.stat().st_size > config_manager.max_file_size:
                     logger.warning(f"Skipping large file: {p} ({p.stat().st_size} bytes)")
                     skipped_files += 1
                     continue
@@ -213,7 +221,7 @@ def collect_chunks(notes_root: Path) -> Tuple[List[str], List[dict]]:
                     if not sec:
                         continue
 
-                    for cid, chunk in chunk_text(sec):
+                    for cid, chunk in chunk_text(sec, config_manager=config_manager):
                         # Create unique ID
                         id_hash = hashlib.sha1(f"{p}:{cid}".encode()).hexdigest()
 
@@ -242,7 +250,7 @@ def collect_chunks(notes_root: Path) -> Tuple[List[str], List[dict]]:
     return docs, metas
 
 
-def encode_documents(docs: List[str], model_name=None, batch_size=None) -> np.ndarray:
+def encode_documents(docs: List[str], model_name=None, batch_size=None, config_manager=None) -> np.ndarray:
     """
     Encode documents into embeddings using SentenceTransformer.
 
@@ -250,14 +258,18 @@ def encode_documents(docs: List[str], model_name=None, batch_size=None) -> np.nd
         docs: List of text documents to encode
         model_name: Name of the model to use (uses config default if None)
         batch_size: Batch size for encoding (uses config default if None)
+        config_manager: AdvancedConfig instance
 
     Returns:
         Normalized embeddings as numpy array
     """
+    if config_manager is None:
+        config_manager = AdvancedConfig()
+
     if model_name is None:
-        model_name = config.model_name
+        model_name = config_manager.model_name
     if batch_size is None:
-        batch_size = config.batch_size
+        batch_size = config_manager.batch_size
 
     try:
         logger.info(f"Loading SentenceTransformer model: {model_name}")
@@ -303,6 +315,9 @@ def encode_documents(docs: List[str], model_name=None, batch_size=None) -> np.nd
 
 def main():
     """Main function to build the embeddings index."""
+    # Initialize configuration manager
+    config_manager = AdvancedConfig()
+
     parser = argparse.ArgumentParser(
         description="Build embeddings index from Markdown notes.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -320,17 +335,17 @@ Environment variables:
         """
     )
     parser.add_argument("notes_root", nargs='?', help="Root folder containing markdown notes")
-    parser.add_argument("--index", help=f"Output index file (default: {config.index_file})")
-    parser.add_argument("--meta", help=f"Output metadata file (default: {config.meta_file})")
-    parser.add_argument("--model", help=f"SentenceTransformer model (default: {config.model_name})")
+    parser.add_argument("--index", help=f"Output index file (default: {config_manager.index_file})")
+    parser.add_argument("--meta", help=f"Output metadata file (default: {config_manager.meta_file})")
+    parser.add_argument("--model", help=f"SentenceTransformer model (default: {config_manager.model_name})")
 
     args = parser.parse_args()
 
     # Use config defaults if not specified
-    notes_root_path = Path(args.notes_root) if args.notes_root else config.notes_root
-    index_file = args.index or config.index_file
-    meta_file = args.meta or config.meta_file
-    model_name = args.model or config.model_name
+    notes_root_path = Path(args.notes_root) if args.notes_root else config_manager.notes_root
+    index_file = args.index or config_manager.index_file
+    meta_file = args.meta or config_manager.meta_file
+    model_name = args.model or config_manager.model_name
 
     try:
         # Validate inputs
@@ -345,12 +360,12 @@ Environment variables:
         logger.info(f"Index file: {index_file}")
         logger.info(f"Meta file: {meta_file}")
         logger.info(f"Model: {model_name}")
-        logger.info(f"Chunk size: {config.chunk_size}, Overlap: {config.overlap}")
+        logger.info(f"Chunk size: {config_manager.chunk_size}, Overlap: {config_manager.overlap}")
 
         # Collect chunks
         logger.info("Collecting and processing documents...")
         start_time = time.time()
-        docs, meta = collect_chunks(notes_root_path)
+        docs, meta = collect_chunks(notes_root_path, config_manager)
 
         if not docs:
             logger.warning("No documents found to index")
@@ -363,7 +378,7 @@ Environment variables:
 
         # Encode documents
         logger.info("Encoding documents into embeddings...")
-        embeddings = encode_documents(docs, model_name)
+        embeddings = encode_documents(docs, model_name, config_manager=config_manager)
 
         # Save results
         logger.info("Saving index and metadata...")

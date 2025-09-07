@@ -1,0 +1,24 @@
+{
+  "models": {
+    "all-MiniLM-L6-v2": {
+      "provider": "sentence-transformers",
+      "model_name": "all-MiniLM-L6-v2",
+      "dimensions": 384,
+      "description": "Fast and efficient for general purpose semantic search"
+    },
+    "all-mpnet-base-v2": {
+      "provider": "sentence-transformers",
+      "model_name": "all-mpnet-base-v2",
+      "dimensions": 768,
+      "description": "High-quality embeddings for complex semantic understanding"
+    },
+    "paraphrase-multilingual-MiniLM-L12-v2": {
+      "provider": "sentence-transformers",
+      "model_name": "paraphrase-multilingual-MiniLM-L12-v2",
+      "dimensions": 384,
+      "description": "Multilingual support for international content"
+    }
+  },
+  "default_model": "all-MiniLM-L6-v2",
+  "cache_dir": "./model_cache"
+}

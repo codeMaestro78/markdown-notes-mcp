@@ -1,0 +1,40 @@
+{
+  "preprocessing": {
+    "remove_headers": true,
+    "normalize_whitespace": true,
+    "remove_code_blocks": false,
+    "extract_links": true,
+    "custom_filters": [
+      {
+        "pattern": "\\[\\[.*?\\]\\]",
+        "replacement": "",
+        "description": "Remove Obsidian-style links"
+      },
+      {
+        "pattern": "#+\\s*",
+        "replacement": "",
+        "description": "Remove markdown headers for better chunking"
+      }
+    ]
+  },
+  "chunking_strategies": {
+    "sentence": {
+      "method": "sentence",
+      "sentence_splitter": "nltk",
+      "min_sentences": 2,
+      "max_sentences": 5
+    },
+    "fixed": {
+      "method": "fixed",
+      "size": 200,
+      "overlap": 50
+    },
+    "semantic": {
+      "method": "semantic",
+      "similarity_threshold": 0.7,
+      "min_chunk_size": 100,
+      "max_chunk_size": 500
+    }
+  },
+  "default_strategy": "fixed"
+}

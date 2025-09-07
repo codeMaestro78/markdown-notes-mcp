@@ -1,0 +1,11 @@
+{
+  "model_name": "all-MiniLM-L6-v2",
+  "chunk_size": 100,
+  "overlap": 20,
+  "batch_size": 32,
+  "max_file_size": 5242880,
+  "request_timeout": 10,
+  "host": "127.0.0.1",
+  "port": 8181,
+  "admin_token": "dev_token_123"
+}
