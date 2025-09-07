@@ -1,0 +1,18 @@
+{
+  "servers": {
+    "markdown-notes": {
+      "type": "stdio",
+      "command": "C:/Users/Devarshi/PycharmProjects/markdown-notes-mcp/.venv/Scripts/python.exe",
+      "args": [
+        "C:/Users/Devarshi/PycharmProjects/markdown-notes-mcp/notes_mcp_server.py",
+        "--index", "notes_index.npz",
+        "--meta", "notes_meta.json",
+        "--notes_root", "./notes"
+      ],
+      "cwd": "C:/Users/Devarshi/PycharmProjects/markdown-notes-mcp",
+      "env": {
+        "PYTHONPATH": "C:/Users/Devarshi/PycharmProjects/markdown-notes-mcp"
+      }
+    }
+  }
+}
