@@ -71,7 +71,7 @@ def setup_cli():
 
     if not installed:
         print("❌ Could not install CLI to any standard location")
-        print("\n📋 Manual Installation:")
+        print("\n📋 Manual Installation Checking:-  ")
         print("1. Copy the following content to a file named 'mcp.bat'")
         print("2. Place it in a directory in your PATH")
         print("3. Or run: python mcp_cli.py [command]")

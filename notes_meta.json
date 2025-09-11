@@ -222,6 +222,24 @@
     "text": "Comprehensive ML theory and practice This advanced guide demonstrates the full capabilities of the enterprise knowledge management system, showcasing multi model AI search, dynamic configuration, and production ready architecture. The system is designed to scale from individual researchers to large enterprise deployments."
   },
   {
+    "id": "bbe6e05f8273c689945b47836799be57954e2157",
+    "file": "generated_Advanced_PCA_techniques_1757621566.md",
+    "chunk_id": 0,
+    "text": "Generated Note: Advanced PCA techniques python from sklearn.decomposition import KernelPCA from sklearn.datasets import make circles import matplotlib.pyplot as plt Generate non linear data X, y = make circles(n samples=100, noise=0.05, factor=0.5) Apply Kernel PCA with RBF kernel kpca = KernelPCA(n components=2, kernel='rbf', gamma=10) X kpca = kpca.fit transform(X) Plot the original data plt.figure(figsize=(12, 5)) plt.subplot(1, 2, 1) plt.scatter(X[:, 0], X[:, 1], c=y) plt.title('Original Data') Plot the transformed data plt.subplot(1, 2, 2) plt.scatter(X kpca[:, 0], X kpca[:, 1], c=y) plt.title('Kernel PCA (RBF Kernel)') plt.show() python from sklearn.decomposition import SparsePCA import numpy as np Generate some sample data X = np.random.rand(100, 10)"
+  },
+  {
+    "id": "f125effb05f7d8694534377d799f4b2fefa4ddd8",
+    "file": "generated_Advanced_PCA_techniques_1757621566.md",
+    "chunk_id": 1,
+    "text": "(RBF Kernel)') plt.show() python from sklearn.decomposition import SparsePCA import numpy as np Generate some sample data X = np.random.rand(100, 10) Apply Sparse PCA spca = SparsePCA(n components=3, alpha=0.1) alpha controls the sparsity spca.fit(X) Print the loading vectors (coefficients) print(spca.components ) python from sklearn.decomposition import IncrementalPCA import numpy as np Generate a large dataset X = np.random.rand(100000, 100) Apply Incremental PCA ipca = IncrementalPCA(n components=10, batch size=1000) specify batch size ipca.fit(X) Transform the data X ipca = ipca.transform(X) print(X ipca.shape)"
+  },
+  {
+    "id": "6c0b649651ff0bf7fb292e8985e30bbd46acfcf1",
+    "file": "generated_Explain_machine_learning_algorithms_1757621515.md",
+    "chunk_id": 0,
+    "text": "Generated Note: Explain machine learning algorithms"
+  },
+  {
     "id": "3eddc89b132b571bcd74112021ab11dbde0ed5c9",
     "file": "machine_learning_fundamentals.md",
     "chunk_id": 0,

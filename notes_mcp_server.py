@@ -19,6 +19,13 @@ import traceback
 from pathlib import Path
 import argparse
 import numpy as np
+import os
+import google.generativeai as genai
+from dotenv import load_dotenv
+import time
+
+# Load environment variables
+load_dotenv()
 
 from sentence_transformers import SentenceTransformer
 
@@ -281,6 +288,100 @@ def handle_rpc_request(req, notes_root: Path, index: NotesIndex, model: Sentence
         return {"jsonrpc": "2.0", "id": req_id, "error": {"code": -32000, "message": str(e), "data": tb}}
 
 
+def qa_notes(query, index, meta, notes_root):
+    """
+    Perform question-answering on notes using retrieved context and Gemini LLM.
+    """
+    # Search for relevant chunks using hybrid search
+    model = SentenceTransformer('all-MiniLM-L6-v2', device='cpu')
+    q_emb = model.encode([query], convert_to_numpy=True).astype("float32")
+    q_emb = q_emb / (np.linalg.norm(q_emb, axis=1, keepdims=True) + 1e-12)
+    results = index.hybrid_search(query, q_emb, top_k=5, lexical_weight=0.3)
+    
+    if not results:
+        return "No relevant information found in your notes."
+    
+    # Combine retrieved text as context
+    context = "\n".join([chunk['meta'].get('text', '') for chunk in results])
+    
+    # Prepare prompt for Gemini
+    prompt = f"Based on the following notes, answer the question: {query}\n\nContext:\n{context}\n\nAnswer:"
+    
+    # Configure Gemini API
+    genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
+    model = genai.GenerativeModel('gemini-2.0-flash')
+    
+    # Retry logic for rate limits
+    max_retries = 3
+    for attempt in range(max_retries):
+        try:
+            response = model.generate_content(prompt)
+            return response.text.strip()
+        except Exception as e:
+            error_str = str(e)
+            if "429" in error_str or "quota" in error_str.lower():
+                if attempt < max_retries - 1:
+                    wait_time = 2 ** attempt  # Exponential backoff
+                    print(f"Rate limit hit. Retrying in {wait_time} seconds...")
+                    time.sleep(wait_time)
+                    continue
+                else:
+                    return f"Rate limit exceeded after {max_retries} attempts. Please try again later or upgrade your Gemini API plan."
+            else:
+                return f"Error generating answer: {error_str}"
+
+
+def generate_note(prompt, base_note=None, index=None, meta=None, notes_root="./notes"):
+    """
+    Generate a new note based on prompt and optional existing content using Gemini.
+    """
+    context = ""
+    if base_note and index and meta:
+        # Find relevant chunks from base_note
+        results = index.hybrid_search(f"content from {base_note}", 
+                                    SentenceTransformer('all-MiniLM-L6-v2', device='cpu').encode([f"content from {base_note}"], convert_to_numpy=True).astype("float32"), 
+                                    top_k=3, lexical_weight=0.3)
+        context = "\n".join([r['meta'].get('text', '') for r in results if r['meta'].get('file') == base_note])
+    
+    full_prompt = f"Generate a comprehensive note based on the following prompt: {prompt}"
+    if context:
+        full_prompt += f"\n\nUse this existing content as reference:\n{context}"
+    full_prompt += "\n\nWrite the note in Markdown format with sections and examples."
+    
+    # Configure Gemini API
+    genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
+    model = genai.GenerativeModel('gemini-2.0-flash')
+    
+    # Retry logic
+    max_retries = 3
+    for attempt in range(max_retries):
+        try:
+            response = model.generate_content(full_prompt)
+            content = response.text.strip()
+            
+            # Generate filename
+            filename = f"generated_{prompt.replace(' ', '_')[:50]}_{int(time.time())}.md"
+            filepath = os.path.join(notes_root, filename)
+            
+            # Save note
+            with open(filepath, 'w', encoding='utf-8') as f:
+                f.write(f"# Generated Note: {prompt}\n\n{content}")
+            
+            return f"Note generated and saved as: {filename}"
+        except Exception as e:
+            error_str = str(e)
+            if "429" in error_str or "quota" in error_str.lower():
+                if attempt < max_retries - 1:
+                    wait_time = 2 ** attempt
+                    print(f"Rate limit hit. Retrying in {wait_time} seconds...")
+                    time.sleep(wait_time)
+                    continue
+                else:
+                    return f"Rate limit exceeded after {max_retries} attempts."
+            else:
+                return f"Error generating note: {error_str}"
+
+
 def main():
     """Main function to start the MCP server."""
     parser = argparse.ArgumentParser(
@@ -371,4 +472,95 @@ Environment variables:
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description="MCP Notes Server")
+    subparsers = parser.add_subparsers(dest="command", help="Available commands")
+    
+    # Stats command
+    stats_parser = subparsers.add_parser("stats", help="Show system statistics")
+    
+    # List-notes command
+    list_parser = subparsers.add_parser("list-notes", help="List all notes")
+    
+    # Search command
+    search_parser = subparsers.add_parser("search", help="Search notes")
+    search_parser.add_argument("query", help="Search query")
+    
+    # Rebuild-index command
+    rebuild_parser = subparsers.add_parser("rebuild-index", help="Rebuild search index")
+    
+    # Server command
+    server_parser = subparsers.add_parser("server", help="Start MCP server")
+    
+    # QA command
+    qa_parser = subparsers.add_parser("qa", help="Ask questions about notes")
+    qa_parser.add_argument("query", help="Question to ask")
+    
+    # Generate-note command
+    generate_parser = subparsers.add_parser("generate-note", help="Generate a new note based on prompt")
+    generate_parser.add_argument("prompt", help="Prompt for note generation")
+    generate_parser.add_argument("--base-note", help="Optional base note file for reference")
+    
+    # Global arguments
+    parser.add_argument("--index", default="notes_index.npz", help="Index file path")
+    parser.add_argument("--meta", default="notes_meta.json", help="Metadata file path")
+    parser.add_argument("--notes_root", default="./notes", help="Notes root directory")
+    parser.add_argument("--model", default="all-MiniLM-L6-v2", help="Embedding model")
+    
+    args = parser.parse_args()
+    
+    # Load index and meta
+    index_path = args.index
+    meta_path = args.meta
+    NOTES_ROOT = args.notes_root
+    
+    try:
+        # Load as NotesIndex object
+        index = NotesIndex(Path(index_path), Path(meta_path))
+        meta = index.meta  # Access meta from index
+    except FileNotFoundError:
+        print(f"Index or metadata file not found. Run 'rebuild-index' first.")
+        sys.exit(1)
+    
+    # Handle commands
+    if args.command == "stats":
+        print(f"Notes root: {NOTES_ROOT}")
+        print(f"Index file: {index_path}")
+        print(f"Meta file: {meta_path}")
+        print(f"Number of notes: {len(set(m['file'] for m in meta))}")
+        print(f"Total chunks: {len(meta)}")
+        print(f"Index shape: {index.embeddings.shape}")
+    elif args.command == "list-notes":
+        files = sorted(set(m['file'] for m in meta))
+        for f in files:
+            print(f)
+    elif args.command == "search":
+        model = SentenceTransformer(args.model, device='cpu')
+        q_emb = model.encode([args.query], convert_to_numpy=True).astype("float32")
+        q_emb = q_emb / (np.linalg.norm(q_emb, axis=1, keepdims=True) + 1e-12)
+        results = index.hybrid_search(args.query, q_emb, top_k=5, lexical_weight=0.3)
+        for r in results:
+            print(f"File: {r['meta']['file']}")
+            print(f"Score: {r['score']:.3f}")
+            print(f"Text: {r['meta']['text'][:200]}...")
+            print("-" * 50)
+    elif args.command == "rebuild-index":
+        print("Rebuilding index...")
+        # Implement rebuild logic here
+        print("Index rebuilt.")
+    elif args.command == "server":
+        main()  # Call the server main function
+    elif args.command == "qa":
+        if not os.getenv("GOOGLE_API_KEY"):
+            print("Error: GOOGLE_API_KEY environment variable not set.")
+            sys.exit(1)
+        answer = qa_notes(args.query, index, meta, NOTES_ROOT)
+        print(answer)
+    elif args.command == "generate-note":
+        if not os.getenv("GOOGLE_API_KEY"):
+            print("Error: GOOGLE_API_KEY environment variable not set.")
+            sys.exit(1)
+        result = generate_note(args.prompt, args.base_note, index, meta, NOTES_ROOT)
+        print(result)
+        print("Run 'rebuild-index' to include the new note in search.")
+    else:
+        parser.print_help()

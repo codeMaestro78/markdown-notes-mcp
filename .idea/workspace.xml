@@ -5,23 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="82a2e15d-567e-41d6-b3a9-5800350855d9" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/markdown-notes-mcp.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/material_theme_project_new.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/admin_http.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build_index.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/notes/example.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/notes/pca_notes.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/notes_mcp_server.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test_harness_client.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/test_end_to_end.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -92,6 +76,7 @@
       <workItem from="1757231485823" duration="9461000" />
       <workItem from="1757245781945" duration="266000" />
       <workItem from="1757247672598" duration="767000" />
+      <workItem from="1757267479210" duration="1285000" />
     </task>
     <servers />
   </component>

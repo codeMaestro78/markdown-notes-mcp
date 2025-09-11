@@ -404,3 +404,12 @@ config = AdvancedConfig()
 # Validate configuration on import
 if not config.validate():
     raise RuntimeError("Invalid configuration. Please check your environment variables and config files.")
+
+class Config:
+    def __init__(self):
+        self.index_file = "notes_index.npz"
+        self.meta_file = "notes_meta.json"
+        self.notes_root = Path("./notes")
+        self.model_name = "all-MiniLM-L6-v2"
+
+config = Config()
