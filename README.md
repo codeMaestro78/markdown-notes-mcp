@@ -5,6 +5,8 @@ A powerful command-line interface for managing and searching through markdown no
 ## 🚀 Features
 
 - **Semantic Search**: Find notes using natural language queries with AI-powered relevance scoring
+- **Question-Answering**: Ask questions about your notes and get AI-generated answers using Google Gemini
+- **Note Generation**: Create new notes based on prompts or existing content
 - **Multiple Output Formats**: Text, JSON, Table, PDF, HTML, and Markdown exports
 - **Auto-Tagging**: Automatically generate relevant tags for new notes
 - **MCP Server Integration**: Ready for GitHub Copilot integration
@@ -79,6 +81,15 @@ python mcp_cli_fixed.py stats --period week
 
 # Start MCP server for Copilot integration
 python mcp_cli_fixed.py server
+
+# Ask questions about your notes
+python mcp_cli_fixed.py qa "Explain PCA from my notes"
+
+# Generate new notes
+python mcp_cli_fixed.py generate-note "Web development best practices"
+
+# Generate with reference
+python mcp_cli_fixed.py generate-note "Advanced ML" --base-note ml_notes.md
 ```
 
 ### Advanced Usage
@@ -295,6 +306,52 @@ python mcp_cli_fixed.py server --no-admin
 
 # Start server with custom host and port
 python mcp_cli_fixed.py server --host 0.0.0.0 --port 9090
+```
+
+### QA Command (NEW!)
+
+Ask questions about your notes using AI-powered question answering.
+
+```bash
+python mcp_cli_fixed.py qa [OPTIONS] QUESTION
+```
+
+**Options:**
+- `--limit INTEGER`: Maximum context chunks (default: 5)
+- `--model TEXT`: AI model to use (default: gemini-1.5-pro)
+
+**Examples:**
+```bash
+# Ask a question
+python mcp_cli_fixed.py qa "Explain PCA from my notes"
+
+# Ask with more context
+python mcp_cli_fixed.py qa "What are machine learning algorithms?" --limit 10
+```
+
+### Generate Note Command (NEW!)
+
+Generate new notes based on prompts using AI.
+
+```bash
+python mcp_cli_fixed.py generate-note [OPTIONS] PROMPT
+```
+
+**Options:**
+- `--base-note PATH`: Use existing note as reference
+- `--output PATH`: Custom output filename
+- `--model TEXT`: AI model to use (default: gemini-1.5-pro)
+
+**Examples:**
+```bash
+# Generate a note
+python mcp_cli_fixed.py generate-note "Web development best practices"
+
+# Generate with reference
+python mcp_cli_fixed.py generate-note "Advanced PCA" --base-note pca_notes.md
+
+# Custom output
+python mcp_cli_fixed.py generate-note "ML algorithms" --output ml_guide.md
 ```
 
 ## ⚙️ Configuration
@@ -575,18 +632,13 @@ For support and questions:
 
 ## 🆕 Recent Updates
 
-### Version 2.0 Features
+### Version 2.1 Features
 
-- **🔧 Fixed JSON Serialization**: Resolved datetime object serialization issues
-- **📤 Search Export**: Added --export argument to search command for direct JSON export
-- **🔄 Enhanced Rebuild-Index**: Fixed argument parsing and added directory auto-creation
-- **🌐 Improved Server**: Fixed threading issues and import error handling
-- **🛡️ Fallback Systems**: Multiple fallback implementations for maximum reliability
-- **🧪 Comprehensive Testing**: Added test scripts for validation
-- **⚙️ Environment Config**: Support for environment variable configuration
-- **📊 Advanced Stats**: Enhanced statistics with better formatting
-- **🏷️ Smart Tagging**: Improved auto-tagging with keyword detection
-- **📋 Batch Processing**: Support for processing multiple files
-- **🔍 Advanced Search**: Threshold filtering and custom export paths
-- **📄 Multiple Exports**: Enhanced export functionality with custom filenames
-- **🛠️ Error Recovery**: Comprehensive error handling and recovery mechanisms
+- **🤖 AI Question-Answering**: Ask natural language questions about your notes
+- **📝 AI Note Generation**: Create new notes based on prompts or existing content
+- **🔄 Google Gemini Integration**: Advanced AI model for intelligent responses
+- **⚙️ Enhanced Configuration**: Comprehensive AI settings and model selection
+- **🛡️ Robust Error Handling**: Automatic retries and fallback systems for AI features
+- **📊 Context-Aware Responses**: Smart retrieval of relevant note sections
+- **🎯 Reference-Based Generation**: Use existing notes as context for new content
+- **⚡ Performance Optimization**: Efficient API usage with rate limit handling

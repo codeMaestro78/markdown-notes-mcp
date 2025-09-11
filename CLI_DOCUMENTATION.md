@@ -31,6 +31,15 @@ python mcp_cli_fixed.py export-search "PCA" --format pdf
 
 # View system statistics
 python mcp_cli_fixed.py stats --period week
+
+# Ask questions about your notes
+python mcp_cli_fixed.py qa "Explain PCA from my notes"
+
+# Generate new notes
+python mcp_cli_fixed.py generate-note "Web development best practices"
+
+# Generate with reference to existing note
+python mcp_cli_fixed.py generate-note "Advanced machine learning" --base-note ml_fundamentals.md
 ```
 
 ## 📋 **Available Commands**
@@ -188,6 +197,53 @@ python mcp_cli_fixed.py server --no-admin
 
 # Custom host and port
 python mcp_cli_fixed.py server --host 0.0.0.0 --port 9000
+```
+
+### ❓ **QA Commands**
+
+#### `python mcp_cli_fixed.py qa <question> [options]` (NEW!)
+Ask questions about your notes using AI-powered question answering.
+
+**Options:**
+- `--limit <number>` - Maximum context chunks to consider (default: 5)
+- `--model <model_name>` - AI model to use (default: gemini-1.5-pro)
+
+**Requirements:**
+- `GOOGLE_API_KEY` environment variable must be set
+- Search index must be built
+
+**Examples:**
+```bash
+# Ask a question
+python mcp_cli_fixed.py qa "Explain PCA from my notes"
+
+# Ask with more context
+python mcp_cli_fixed.py qa "What are the advantages of machine learning?" --limit 10
+```
+
+### ✍️ **Note Generation Commands**
+
+#### `python mcp_cli_fixed.py generate-note <prompt> [options]` (NEW!)
+Generate new notes based on prompts using AI.
+
+**Options:**
+- `--base-note <filename>` - Use existing note as reference
+- `--output <filename>` - Custom output filename
+- `--model <model_name>` - AI model to use (default: gemini-1.5-pro)
+
+**Requirements:**
+- `GOOGLE_API_KEY` environment variable must be set
+
+**Examples:**
+```bash
+# Generate a note
+python mcp_cli_fixed.py generate-note "Web development best practices"
+
+# Generate with reference
+python mcp_cli_fixed.py generate-note "Advanced PCA techniques" --base-note pca_notes.md
+
+# Custom output file
+python mcp_cli_fixed.py generate-note "Machine learning algorithms" --output ml_guide.md
 ```
 
 ## 🎨 **Output Formats**

@@ -684,3 +684,56 @@ except Exception as e:
 5. **Monitor access logs** for suspicious activity
 
 This advanced configuration system provides enterprise-grade flexibility while maintaining ease of use for basic deployments. 🚀
+
+## **AI Features Configuration**
+
+#### **Google Gemini Setup**
+```bash
+# Required for QA and note generation
+export GOOGLE_API_KEY="your_google_api_key_here"
+
+# Get API key from: https://makersuite.google.com/app/apikey
+```
+
+#### **AI Model Configuration**
+```bash
+# Default model for AI features
+export MCP_AI_MODEL="gemini-1.5-pro"
+
+# Alternative models
+export MCP_AI_MODEL="gemini-pro"  # Older model
+```
+
+#### **AI Request Settings**
+```bash
+# Maximum tokens for AI responses
+export MCP_AI_MAX_TOKENS="1000"
+
+# Temperature for response creativity (0.0-1.0)
+export MCP_AI_TEMPERATURE="0.7"
+
+# Retry settings for API failures
+export MCP_AI_MAX_RETRIES="3"
+export MCP_AI_RETRY_DELAY="2"
+```
+
+#### **Context Configuration**
+```bash
+# Maximum context chunks for QA
+export MCP_QA_MAX_CHUNKS="5"
+
+# Context relevance threshold
+export MCP_QA_THRESHOLD="0.7"
+```
+
+#### **Note Generation Settings**
+```bash
+# Default output directory for generated notes
+export MCP_GENERATE_OUTPUT_DIR="./notes"
+
+# Auto-save generated notes
+export MCP_GENERATE_AUTO_SAVE="true"
+
+# Include timestamps in filenames
+export MCP_GENERATE_TIMESTAMP="true"
+```
