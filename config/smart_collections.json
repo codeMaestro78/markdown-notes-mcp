@@ -1,0 +1,72 @@
+{
+  "smart_collections": {
+    "templates": {
+      "recent_notes": {
+        "name": "Recent Notes",
+        "description": "Notes modified in the last 7 days",
+        "criteria": [
+          {
+            "type": "date",
+            "field": "modified_date",
+            "operator": ">=",
+            "value": "now-7d"
+          }
+        ],
+        "auto_update": true,
+        "icon": "🕒"
+      },
+      "tagged_important": {
+        "name": "Important Notes",
+        "description": "Notes tagged as important or urgent",
+        "criteria": [
+          {
+            "type": "tag",
+            "operator": "contains_any",
+            "value": ["important", "urgent", "priority"]
+          }
+        ],
+        "auto_update": true,
+        "icon": "⭐"
+      },
+      "meeting_notes": {
+        "name": "Meeting Notes",
+        "description": "Notes containing meeting-related keywords",
+        "criteria": [
+          {
+            "type": "keyword",
+            "operator": "contains_any",
+            "value": ["meeting", "agenda", "action items", "attendees"],
+            "case_sensitive": false
+          },
+          {
+            "type": "tag",
+            "operator": "contains_any",
+            "value": ["meeting", "work"]
+          }
+        ],
+        "logical_operator": "OR",
+        "auto_update": true,
+        "icon": "📝"
+      },
+      "large_notes": {
+        "name": "Long Notes",
+        "description": "Notes with more than 1000 words",
+        "criteria": [
+          {
+            "type": "content_length",
+            "operator": ">",
+            "value": 1000
+          }
+        ],
+        "auto_update": true,
+        "icon": "📄"
+      }
+    },
+    "settings": {
+      "max_collections": 50,
+      "auto_update_interval": 300,
+      "cache_results": true,
+      "cache_ttl": 600
+    }
+  }
+}

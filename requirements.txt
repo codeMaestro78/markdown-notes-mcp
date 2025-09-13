@@ -4,3 +4,7 @@ sentence-transformers
 numpy
 scikit-learn
 faiss-cpu  # optional, for faster search
+python-frontmatter>=1.0.0
+nltk>=3.8
+pathlib>=1.0.1
+threading
